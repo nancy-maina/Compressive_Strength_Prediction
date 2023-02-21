@@ -18,14 +18,14 @@ def hello_world():
 def predict():
     # [cement	bfs	fa	water	sp	coarse_aggregate	fine_aggregate	age	]
     f_list = [
-        request.form.get('cement'),
-        request.form.get('bfs'),
-        request.form.get('fa'),
-        request.form.get('water'),
-        request.form.get('sp'),
-        request.form.get('coarse_aggregate'),
-        request.form.get('fine_aggregate'),
-        request.form.get('age')
+        float(request.form.get('cement')),
+        float(request.form.get('bfs')),
+        float(request.form.get('fa')),
+        float(request.form.get('water')),
+        float(request.form.get('sp')),
+        float(request.form.get('coarse_aggregate')),
+        float(request.form.get('fine_aggregate')),
+        float(request.form.get('age'))
     ]  # list of inputs
 
     # logging operation
@@ -36,11 +36,8 @@ def predict():
     final_features = np.array(f_list).reshape(-1, 8)
     concrete_data = pd.DataFrame(final_features)
 
-    print(final_features, concrete_data)
-    exit()
-
     prediction = model.predict(concrete_data)
-    result = "%.2f" % round(prediction[0], 2)
+    result = [float(np.round(x)) for x in prediction]
 
     # logging operation
 #         logging.info(f"The Predicted Concrete Compressive strength is {result} MPa")
