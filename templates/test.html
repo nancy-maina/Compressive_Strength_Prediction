@@ -31,21 +31,21 @@
             float: right;">
 <div class = "login" style="font-size: 18px">
     <!-- Inputs to our model-->
-<form action="/predict" method="POST" >
+<form action="/predict" method="POST" id="form" name="form" >
     <label for="age"> <b>Age (in days) :</b> </label>
     <input type = "number"  id = "age" name = "age" placeholder = "Age of the concrete" required = "required" />
     <br><br><br>
     <label for= "cement"> <b>Cement (in kg) : </b> </label>
     <input type = "number" step = "0.01" id= "cement" name = "cement" placeholder = "quantity" required = "required" />
     <br><br><br>
-    <label for="sand"> <b>Sand (in kg) :</b> </label>
-    <input type = "number"  id = "0.01" name = "sand" placeholder = "quantity" required = "required" />
-    <br><br><br>
+    <!-- <label for="sand"> <b>Sand (in kg) :</b> </label> -->
+    <!-- <input type = "number"  id = "0.01" name = "sand" placeholder = "quantity" required = "required" /> -->
+    <!-- <br><br><br> -->
     <label for="Coarse_aggregates"> <b>Coarse Aggregates (in kg) :</b> </label>
-    <input type = "number"  id = "0.01" name = "Coarse_aggregates" placeholder = "quantity" required = "required" />
+    <input type = "number"  id = "0.01" name = "coarse_aggregate" placeholder = "quantity" required = "required" />
     <br><br><br>
     <label for="fine_aggregates"> <b>Fine Aggregates (in kg) :</b> </label>
-    <input type = "number"  id = "0.01" name = "Fine_aggregates" placeholder = "quantity" required = "required" />
+    <input type = "number"  id = "0.01" name = "fine_aggregate" placeholder = "quantity" required = "required" />
     <br><br><br>
     <label for="water"> <b>Water (in kg) :</b></label>
     <input type = "number" step = "0.01" id = "water" name = "water" placeholder = "quantity " required = "required" />
