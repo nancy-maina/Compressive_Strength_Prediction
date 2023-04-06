@@ -1,12 +1,13 @@
-from flask import Flask, render_template, request
 import numpy as np
 import pandas as pd
 import pickle
 import tensorflow as tf
 
+from flask import Flask, render_template, request
+
 app = Flask(__name__)
 
-model = pickle.load(open('model.pkl', 'rb'))
+model = tf.keras.models.load_model('my_model_weights.h5')
 
 
 @app.route('/')
