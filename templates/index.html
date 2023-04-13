@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Concrete Strength Calculator</title>
+    
+    <link href="{{ url_for('static', filename='css/tailwind.css')}}" rel="stylesheet"></link>
+    <script src="{{ url_for('static', filename='js/index.js') }}" defer></script>
+</head>
+
+<body>
+<style>
+    body {
+        background-color: #f2f2f2;
+    }
+
+    .container {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 10px;
+    }
+
+    /* Increase the size of the form inputs so that they look nice */
+    input {
+        width: 300px;
+    }
+
+    /* Set the labels to be on the left of the inputs */
+    label {
+        float: left;
+        width: 300px;
+    }
+
+    /* Make the form inputs look nice */
+    input {
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        padding: 12px;
+        box-sizing: border-box;
+    }
+
+    /* Make the submit button look nice */
+    input[type=submit],
+    button[type=submit] {
+        background-color: #4CAF50;
+        color: white;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    /* Make the submit button look nice when it is hovered */
+    input[type=submit]:hover,
+    button[type=submit]:hover {
+        background-color: #45a049;
+    }
+
+    /* Make the form have a background shadow */
+    .floating-box {
+        background-color: #fff;
+        border: 1px solid #73AD21;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+        padding: 20px;
+        width: 500px;
+    }
+</style>
+
+<!-- Include simple nav template -->
+{% include 'nav.html' %}
+
+<!-- Using tailwind css create a container with a form at the center -->
+<div class="container mx-auto flex flex-col justify-center items-center h-screen">
+    <h1 class="text-4xl font-bold text-center">Concrete Strength Prediction</h1>
+    <p class="text-center">Enter the values of the concrete ingredients to calculate the strength of the concrete</p>
+    <p class="text-center">The strength of the concrete is measured in MPa (Megapascals)</p><br>
+    <p class="text-center">The strength of the concrete is calculated using the following formula</p>
+    <p class="text-center">Strength = 2.12 * (cement + blast_furnace_slag + fly_ash + water + superplasticizer + coarse_aggregate + fine_aggregate) + 0.001 * age</p><br>
+    <br><br>
+    
+    <form action="predict" method="POST" class="flex flex-col justify-center items-center floating-box">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+        <label for="cement">Cement (kg)</label>
+        <input type="number" name="cement" id="cement" class="border-2 border-black rounded-md p-2" value="{% if cement in form %} {{cement}} {% endif %}" required>
+        <!-- Error for cement input -->
+        <div class="text-red-500 text-sm">
+            {% if errors.cement %}
+                {{ errors.cement }}
+            {% endif %}
+        </div>
+        <br>
+
+        <label for="blast_furnace_slag">Blast Furnace Slag (kg)</label>
+        <input type="number" name="blast_furnace_slag" id="blast_furnace_slag" class="border-2 border-black rounded-md p-2" value="{% if form.blast_furnace_slag %} {{form.blast_furnace_slag}} {% endif %}" required>
+
+        <!-- Error for blast_furnace_slag input -->
+        <div class="text-red-500 text-sm">
+            {% if errors.blast_furnace_slag %}
+                {{ errors.blast_furnace_slag }}
+            {% endif %}
+        </div>
+        <br>
+
+        <label for="fly_ash">Fly Ash (kg)</label>
+        <input type="number" name="fly_ash" id="fly_ash" class="border-2 border-black rounded-md p-2" required>
+        <!-- Error for fly_ash input -->
+        <div class="text-red-500 text-sm">
+            {% if errors.fly_ash %}
+                {{ errors.fly_ash }}
+            {% endif %}
+        </div>
+        <br>
+
+        <label for="water">Water (kg)</label>
+        <input type="number" name="water" id="water" class="border-2 border-black rounded-md p-2" required>
+        <!-- Error for water input -->
+        <div class="text-red-500 text-sm">
+            {% if errors.water %}
+                {{ errors.water }}
+            {% endif %}
+        </div>
+        <br>
+
+        <label for="superplasticizer">Superplasticizer (kg)</label>
+        <input type="number" name="superplasticizer" id="superplasticizer" class="border-2 border-black rounded-md p-2" required>
+        <!-- Error for superplasticizer input -->
+        <div class="text-red-500 text-sm">
+            {% if errors.superplasticizer %}
+                {{ errors.superplasticizer }}
+            {% endif %}
+        </div>
+        <br>
+
+        <label for="coarse_aggregate">Coarse Aggregate (kg)</label>
+        <input type="number" name="coarse_aggregate" id="coarse_aggregate" class="border-2 border-black rounded-md p-2" required>
+        <!-- Error for coarse_aggregate input -->
+        <div class="text-red-500 text-sm">
+            {% if errors.coarse_aggregate %}
+                {{ errors.coarse_aggregate }}
+            {% endif %}
+        </div>
+        <br>
+
+        <label for="fine_aggregate">Fine Aggregate (kg)</label>
+        <input type="number" name="fine_aggregate" id="fine_aggregate" class="border-2 border-black rounded-md p-2" required>
+        <!-- Error for fine_aggregate input -->
+        <div class="text-red-500 text-sm">
+            {% if errors.fine_aggregate %}
+                {{ errors.fine_aggregate }}
+            {% endif %}
+        </div>
+        <br>
+
+        <label for="age">Age (days)</label>
+        <input type="number" name="age" id="age" class="border-2 border-black rounded-md p-2" required>
+        <!-- Error for age input -->
+        <div class="text-red-500 text-sm">
+            {% if errors.age %}
+                {{ errors.age }}
+            {% endif %}
+        </div>
+        <br>
+
+        <button type="submit" class="bg-blue-500 text-white rounded-md p-2">Calculate</button>
+    </form>
+</div>
+
+</body>
+</html>

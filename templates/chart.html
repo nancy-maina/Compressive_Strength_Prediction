@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Concrete Strength Calculator</title>
+    
+    <link href="{{ url_for('static', filename='css/tailwind.css')}}" rel="stylesheet"></link>
+    <script src="{{ url_for('static', filename='js/index.js') }}" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script>
+</head>
+
+<body>
+<style>
+    body {
+        background-color: #f2f2f2;
+    }
+
+    .container {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 10px;
+    }
+
+    /* Make the form have a background shadow */
+    .floating-box {
+        background-color: #fff;
+        border: 1px solid #73AD21;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+        padding: 20px;
+        width: 80%;
+    }
+
+    /* Increase the size of the chart */
+    .chart-container {
+        width: 100%;
+        height: auto;
+    }
+
+    /* Make the sliders look nice */
+    .sliders {
+        width: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+    }
+</style>
+
+<!-- Include simple nav template -->
+{% include 'nav.html' %}
+
+<!-- Using tailwind css create a container with a form at the center -->
+<div class="container mx-auto flex flex-col justify-center items-center h-screen">
+    <h1 class="text-4xl font-bold text-center">Concrete Strength Prediction</h1>
+    <p class="text-center">Enter the values of the concrete ingredients to calculate the strength of the concrete</p>
+    <p class="text-center">The strength of the concrete is measured in MPa (Megapascals)</p><br>
+    <p class="text-center">The strength of the concrete is calculated using the following formula</p>
+    <p class="text-center">Strength = 2.12 * (cement + blast_furnace_slag + fly_ash + water + superplasticizer + coarse_aggregate + fine_aggregate) + 0.001 * age</p><br>
+    <br><br>
+
+    <div class="floating-box">
+        <!-- Create a chart with sliders than we can use to show predicted vs calculated data of a range of 30 days -->
+        <div class="chart-container">
+            <canvas id="myChart"></canvas>
+
+            <!-- Create sliders for each of the ingredients -->
+            <div class="flex flex-row justify-center items-center sliders">
+                <div class="flex flex-col justify-center items-center">
+                    <label for="cement">Cement (kg)</label>
+                    <input type="range" id="cement" name="cement" min="0" max="540" value="0" step="1" oninput="cementOutput.value = cement.value">
+                    <output name="cementOutput" id="cementOutput">0</output>
+                </div>
+                <div class="flex flex-col justify-center items-center">
+                    <label for="blast_furnace_slag">Blast Furnace Slag (kg)</label>
+                    <input type="range" id="blast_furnace_slag" name="blast_furnace_slag" min="0" max="359" value="0" step="1" oninput="blast_furnace_slagOutput.value = blast_furnace_slag.value">
+                    <output name="blast_furnace_slagOutput" id="blast_furnace_slagOutput">0</output>
+                </div>
+                <div class="flex flex-col justify-center items-center">
+                    <label for="fly_ash">Fly Ash (kg)</label>
+                    <input type="range" id="fly_ash" name="fly_ash" min="0" max="200" value="0" step="1" oninput="fly_ashOutput.value = fly_ash.value">
+                    <output name="fly_ashOutput" id="fly_ashOutput">0</output>
+                </div>
+                <div class="flex flex-col justify-center items-center">
+                    <label for="water">Water (kg)</label>
+                    <input type="range" id="water" name="water" min="0" max="247" value="0" step="1" oninput="waterOutput.value = water.value">
+                    <output name="waterOutput" id="waterOutput">0</output>
+                </div>
+                <div class="flex flex-col justify-center items-center">
+                    <label for="superplasticizer">Superplasticizer (kg)</label>
+                    <input type="range" id="superplasticizer" name="superplasticizer" min="0" max="32" value="0" step="1" oninput="superplasticizerOutput.value = superplasticizer.value">
+                    <output name="superplasticizerOutput" id="superplasticizerOutput">0</output>
+                </div>
+                <div class="flex flex-col justify-center items-center">
+                    <label for="coarse_aggregate">Coarse Aggregate (kg)</label>
+                    <input type="range" id="coarse_aggregate" name="coarse_aggregate" min="0" max="1145" value="0" step="1" oninput="coarse_aggregateOutput.value = coarse_aggregate.value">
+                    <output name="coarse_aggregateOutput" id="coarse_aggregateOutput">0</output>
+                </div>
+                <div class="flex flex-col justify-center items-center">
+                    <label for="fine_aggregate">Fine Aggregate (kg)</label>
+                    <input type="range" id="fine_aggregate" name="fine_aggregate" min="0" max="992" value="0" step="1" oninput="fine_aggregateOutput.value = fine_aggregate.value">
+                    <output name="fine_aggregateOutput" id="fine_aggregateOutput">0</output>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var ctx = document.getElementById('myChart').getContext('2d');
+    var chart = new Chart(ctx, {
+        // The type of chart we want to create
+        type: 'line',
+
+        // The data for our dataset
+        data: {
+            labels: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30],
+            datasets: [
+                {
+                    label: 'Predicted Strength',
+                    backgroundColor: 'rgb(255, 99, 132)',
+                    borderColor: 'rgb(255, 99, 132)',
+                    fill: false,
+                    tension: 0.1
+                },
+                {
+                    label: 'Actual Strength',
+                    backgroundColor: 'rgb(54, 162, 235)',
+                    borderColor: 'rgb(54, 162, 235)',
+                    fill: false,
+                    tension: 0.1
+                },
+            ],
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Strength (MPa)'
+                    }
+                }],
+                xAxes: [{
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Age (Days)'
+                    }
+                }]
+            }
+        },
+    });
+
+    var timer = null;
+
+    // Create a function that will update the chart when the sliders are changed
+    function updateChart() {
+        // Add a debounce
+        // Clear the timer
+        clearTimeout(timer);
+
+        // Start a new timer
+        timer = setTimeout(() => {
+             // Get the values of the sliders
+            var cement = document.getElementById("cement").value;
+            var blast_furnace_slag = document.getElementById("blast_furnace_slag").value;
+            var fly_ash = document.getElementById("fly_ash").value;
+            var water = document.getElementById("water").value;
+            var superplasticizer = document.getElementById("superplasticizer").value;
+            var coarse_aggregate = document.getElementById("coarse_aggregate").value;
+            var fine_aggregate = document.getElementById("fine_aggregate").value;
+
+            // Fetches the data from the `/chart-data` endpoint and updates the chart, this will get data for 30 days
+            fetch(`/chart_data?cement=${cement}&blast_furnace_slag=${blast_furnace_slag}&fly_ash=${fly_ash}&water=${water}&superplasticizer=${superplasticizer}&coarse_aggregate=${coarse_aggregate}&fine_aggregate=${fine_aggregate}`)
+                .then(response => response.json())
+                .then(data => {
+                    // Get the data from the response
+                    var dataset_0 = [];
+                    var dataset_1 = [];
+
+                    for (var i = 0; i < data.results.length; i++) {
+                        dataset_0.push(data.results[i].predicted);
+                        dataset_1.push(data.results[i].calculated);
+                    }
+
+                    // Update the chart
+                    chart.data.datasets[0].data = dataset_0;
+                    chart.data.datasets[1].data = dataset_1;
+                    chart.update();
+                });
+        }, 500);
+    }
+   
+
+    // Add an event listener to each slider
+    document.getElementById("cement").addEventListener("input", updateChart);
+    document.getElementById("blast_furnace_slag").addEventListener("input", updateChart);
+    document.getElementById("fly_ash").addEventListener("input", updateChart);
+    document.getElementById("water").addEventListener("input", updateChart);
+    document.getElementById("superplasticizer").addEventListener("input", updateChart);
+    document.getElementById("coarse_aggregate").addEventListener("input", updateChart);
+    document.getElementById("fine_aggregate").addEventListener("input", updateChart);
+
+    // Call the updateChart function when the page loads
+    document.addEventListener("DOMContentLoaded", updateChart);
+
+</script>
+
+</body>
+</html>
