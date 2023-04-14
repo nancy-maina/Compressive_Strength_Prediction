@@ -125,13 +125,13 @@
                     fill: false,
                     tension: 0.1
                 },
-                {
-                    label: 'Actual Strength',
-                    backgroundColor: 'rgb(54, 162, 235)',
-                    borderColor: 'rgb(54, 162, 235)',
-                    fill: false,
-                    tension: 0.1
-                },
+                // {
+                //     label: 'Actual Strength',
+                //     backgroundColor: 'rgb(54, 162, 235)',
+                //     borderColor: 'rgb(54, 162, 235)',
+                //     fill: false,
+                //     tension: 0.1
+                // },
             ],
         },
         options: {
@@ -181,12 +181,12 @@
 
                     for (var i = 0; i < data.results.length; i++) {
                         dataset_0.push(data.results[i].predicted);
-                        dataset_1.push(data.results[i].calculated);
+                        // dataset_1.push(data.results[i].calculated);
                     }
 
                     // Update the chart
                     chart.data.datasets[0].data = dataset_0;
-                    chart.data.datasets[1].data = dataset_1;
+                    // chart.data.datasets[1].data = dataset_1;
                     chart.update();
                 });
         }, 500);
