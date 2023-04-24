@@ -20,13 +20,13 @@ def predict():
     # Validate inputs from the form
     # cement, blast_furnace_slag, fly_ash, water, superplasticizer, coarse_aggregate, fine_aggregate, age
     valid_inputs = {
-        'cement': (0, 540),
-        'blast_furnace_slag': (0, 359),
-        'fly_ash': (0, 200),
-        'water': (0, 247),
-        'superplasticizer': (0, 32),
-        'coarse_aggregate': (0, 1145),
-        'fine_aggregate': (0, 992),
+        'cement': (0, 1000),
+        'blast_furnace_slag': (0, 5),
+        'fly_ash': (0, 5),
+        'water': (0, 500),
+        'superplasticizer': (0, 5),
+        'coarse_aggregate': (0, 4000),
+        'fine_aggregate': (0, 2000),
         'age': (0, 365)
     }
 
