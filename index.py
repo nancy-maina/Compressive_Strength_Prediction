@@ -2,14 +2,33 @@ import numpy as np
 import pandas as pd
 import tensorflow as tf
 
-from flask import Flask, render_template, request, session, abort
-from sklearn.preprocessing import normalize
+from flask import Flask, render_template, request
+from sklearn.preprocessing import normalize, MinMaxScaler
 
 app = Flask(__name__)
 
-model = tf.keras.models.load_model('my_model.h5', compile= False)
-model.load_weights('my_model_weights.h5')
+model = tf.keras.models.load_model('model_data/my_model.h5', compile= False)
+model.load_weights('model_data/my_model_weights.h5')
 model.compile()
+
+# Validate inputs from the form
+valid_inputs = {
+    'cement': (0, 1000),
+    'blast_furnace_slag': (0, 5),
+    'fly_ash': (0, 5),
+    'water': (0, 500),
+    'superplasticizer': (0, 5),
+    'coarse_aggregate': (0, 4000),
+    'fine_aggregate': (0, 2000),
+    'age': (0, 365)
+}
+
+def predict_concrete_strength(cement, blast_furnace_slag, fly_ash, water, superplasticizer, coarse_aggregate, fine_aggregate, age):
+    # [cement, blast_furnace_slag, fly_ash, water, superplasticizer, coarse_aggregate, fine_aggregate, age]
+    final_features = [[cement, blast_furnace_slag, fly_ash, water, superplasticizer, coarse_aggregate, fine_aggregate, age]]
+    final_features = normalize(final_features)
+    prediction = model.predict(final_features)
+    return [float(np.round(x)) for x in prediction][0]
 
 @app.route('/')
 def index():
@@ -19,17 +38,6 @@ def index():
 def predict():
     # Validate inputs from the form
     # cement, blast_furnace_slag, fly_ash, water, superplasticizer, coarse_aggregate, fine_aggregate, age
-    valid_inputs = {
-        'cement': (0, 1000),
-        'blast_furnace_slag': (0, 5),
-        'fly_ash': (0, 5),
-        'water': (0, 500),
-        'superplasticizer': (0, 5),
-        'coarse_aggregate': (0, 4000),
-        'fine_aggregate': (0, 2000),
-        'age': (0, 365)
-    }
-
     errors = {}
     for key, value in valid_inputs.items():
         if not request.form.get(key) or not value[0] <= float(request.form.get(key)) <= value[1]:
@@ -49,27 +57,11 @@ def predict():
     fine_aggregate = float(request.form.get('fine_aggregate'))
     age = float(request.form.get('age'))
 
-    # Normalize the inputs
-    f_list = [cement, blast_furnace_slag, fly_ash, water, superplasticizer, coarse_aggregate, fine_aggregate, age]
-    final_features = normalize([f_list])
-    concrete_data = pd.DataFrame(final_features)
-
-    # Predict the compressive strength of concrete using the trained model
-    predicted = model.predict(concrete_data)
-    predicted = [float(np.round(x)) for x in predicted][0]
-
-    # Calculate the result using the formula
-    # Strength = 2.12 * (cement + blast_furnace_slag + fly_ash + water + superplasticizer + coarse_aggregate + fine_aggregate) + 0.001 * age
-    calculated =  2.12 * (cement + blast_furnace_slag + fly_ash + water + superplasticizer + coarse_aggregate + fine_aggregate) + 0.001 * age
+    # Make a prediction
+    predicted = predict_concrete_strength(cement, blast_furnace_slag, fly_ash, water, superplasticizer, coarse_aggregate, fine_aggregate, age)
 
     # Calculate the difference between the two results, i.e. the error, accuracy, mean absolute error, etc.
-    difference = predicted - calculated
-    accuracy = (predicted / calculated) * 100
-    error = difference / calculated
-    mae = abs(difference)
-    mse = difference ** 2
-
-    return render_template('prediction.html', predicted=predicted, calculated=calculated, difference=difference, accuracy=accuracy, mae=mae, mse=mse, error=error)
+    return render_template('prediction.html', predicted=predicted)
 
 @app.route('/chart')
 def chart():
@@ -109,26 +101,15 @@ def chart_data():
     coarse_aggregate = float(request.args.get('coarse_aggregate'))
     fine_aggregate = float(request.args.get('fine_aggregate'))
     
-    # Get results for the next 30 days
+    # Get results for the next 28 days
     results = []
 
-    for i in range(30):
-        # Normalize the inputs
-        f_list = [cement, blast_furnace_slag, fly_ash, water, superplasticizer, coarse_aggregate, fine_aggregate, i]
-        final_features = normalize([f_list])
-        concrete_data = pd.DataFrame(final_features)
-
-        # Predict the compressive strength of concrete using the trained model
-        predicted = model.predict(concrete_data)
-        predicted = [float(np.round(x)) for x in predicted][0]
-
-        # Calculate the result using the formula
-        # Strength = 2.12 * (cement + blast_furnace_slag + fly_ash + water + superplasticizer + coarse_aggregate + fine_aggregate) + 0.001 * age
-        calculated =  2.12 * (cement + blast_furnace_slag + fly_ash + water + superplasticizer + coarse_aggregate + fine_aggregate) + 0.001 * i
+    for i in range(29):
+        # Make a prediction
+        predicted = predict_concrete_strength(cement, blast_furnace_slag, fly_ash, water, superplasticizer, coarse_aggregate, fine_aggregate, i)
     
         results.append({
             'predicted': round(predicted, 2),
-            'calculated': round(calculated, 2),
             'age': i
         })
 
