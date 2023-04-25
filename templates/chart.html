@@ -149,8 +149,10 @@
     function updateChart() {
         // Add a debounce
         // Clear the timer
-        clearTimeout(timer);
-
+        if(timer){
+            clearTimeout(timer);
+        }
+        
         // Start a new timer
         timer = setTimeout(() => {
              // Get the values of the sliders
@@ -191,7 +193,7 @@
     document.getElementById("fine_aggregate").addEventListener("input", updateChart);
 
     // Call the updateChart function when the page loads
-    document.addEventListener("DOMContentLoaded", updateChart);
+    // document.addEventListener("DOMContentLoaded", updateChart);
 
 </script>
 

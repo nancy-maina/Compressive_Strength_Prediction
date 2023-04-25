@@ -1,5 +1,4 @@
 import numpy as np
-import pandas as pd
 import tensorflow as tf
 
 from flask import Flask, render_template, request
@@ -7,6 +6,7 @@ from sklearn.preprocessing import normalize, MinMaxScaler
 
 app = Flask(__name__)
 
+# static variable that should be loaded only once
 model = tf.keras.models.load_model('model_data/my_model.h5', compile= False)
 model.load_weights('model_data/my_model_weights.h5')
 model.compile()
@@ -25,8 +25,7 @@ valid_inputs = {
 
 def predict_concrete_strength(cement, blast_furnace_slag, fly_ash, water, superplasticizer, coarse_aggregate, fine_aggregate, age):
     # [cement, blast_furnace_slag, fly_ash, water, superplasticizer, coarse_aggregate, fine_aggregate, age]
-    final_features = [[cement, blast_furnace_slag, fly_ash, water, superplasticizer, coarse_aggregate, fine_aggregate, age]]
-    final_features = normalize(final_features)
+    final_features = normalize([[cement, blast_furnace_slag, fly_ash, water, superplasticizer, coarse_aggregate, fine_aggregate, age]])
     prediction = model.predict(final_features)
     return [float(np.round(x)) for x in prediction][0]
 
@@ -73,24 +72,17 @@ def chart():
 def chart_data():
     # Validate inputs from the form
     # cement, blast_furnace_slag, fly_ash, water, superplasticizer, coarse_aggregate, fine_aggregate
-    valid_inputs = {
-        'cement': (0, 540),
-        'blast_furnace_slag': (0, 359),
-        'fly_ash': (0, 200),
-        'water': (0, 247),
-        'superplasticizer': (0, 32),
-        'coarse_aggregate': (0, 1145),
-        'fine_aggregate': (0, 992),
-    }
-
     errors = {}
     for key, value in valid_inputs.items():
+        if key == 'age':
+            continue
+
         if not request.args.get(key) or not value[0] <= float(request.args.get(key)) <= value[1]:
             errors[key] = f"Please enter a valid value for {key}. Valid values are between {value[0]} and {value[1]}."
 
     if errors:
         # Set the status code to 400 and return the errors
-        return {'errors': errors}, 400
+        return {'errors': errors}, 422
 
     # Generate some data given the inputs
     cement = float(request.args.get('cement'))
